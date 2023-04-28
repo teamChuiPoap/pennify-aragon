@@ -1,6 +1,6 @@
 # PennyFi [<img height="100" align="right" alt="aragon-logo" src="https://user-images.githubusercontent.com/33203511/217436477-b2dae151-5e47-454c-885f-9158793e6790.png">](https://github.com/aragon/aragon-dao)
 
-The web app for the Aragon DAO.
+The web app  to interact with the Aragon DAO network.
 
 <br/>
 
