@@ -9,7 +9,7 @@
 
 - 📚 Read the [User Guide](https://help.aragon.org/) first, if you have any questions as a user.
 - 🏗 If you'd like to develop an Aragon app, please visit the [Aragon Developer Portal](https://hack.aragon.org).
-- 📝 Please report any issues and feedback in the [support channel on Discord](https://discord.gg/ZncWSEGbSJ).
+
 
 - 📖 To learn more about contributing to the Aragon client itself, please check the [contributing guide](./CONTRIBUTING.md).
 - 🚢 For an overview of what changed with each release, check the [releases](https://github.com/aragon/client/releases).
