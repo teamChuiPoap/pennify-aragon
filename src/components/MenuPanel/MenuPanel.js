@@ -1,107 +1,158 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Spring, animated } from 'react-spring/renderprops'
-import { GU, springs, textStyle, unselectable, useTheme } from '@aragon/ui'
-import { useHistory, useLocation } from 'react-router'
-import { lerp } from '@/utils/math-utils'
-import { useOrganizationState } from '../../providers/OrganizationProvider'
+import { Spring, animated } from 'react-spring'
+import {
+  Details,
+  GU,
+  springs,
+  textStyle,
+  unselectable,
+  useTheme,
+} from '@aragon/ui'
+import { lerp } from '../../util/math'
+import {
+  AppInstanceGroupType,
+  AppsStatusType,
+  DaoAddressType,
+  DaoStatusType,
+} from '../../prop-types'
+import { useConsole } from '../../apps/Console/useConsole'
+import { useRouting } from '../../routing'
+import { staticApps } from '../../static-apps'
+import { DAO_STATUS_LOADING } from '../../symbols'
 import MenuPanelAppGroup from './MenuPanelAppGroup'
+import MenuPanelAppsLoader from './MenuPanelAppsLoader'
+import OrganizationSwitcher from './OrganizationSwitcher/OrganizationSwitcher'
 import AppIcon from '../AppIcon/AppIcon'
-import { buildAppRoute, getAppPresentation } from '../../utils/app-utils'
-import { APPS_MENU_PANEL } from '../../constants'
-import { addressesEqual } from '@/utils/web3-utils'
 
 export const MENU_PANEL_SHADOW_WIDTH = 3
 export const MENU_PANEL_WIDTH = 28 * GU
 
 const { div: AnimDiv } = animated
 
-function MenuPanel({ showOrgSwitcher, onOpenApp }) {
-  const { apps } = useOrganizationState()
-  const history = useHistory()
-  const location = useLocation()
-  const [activeInstaceAddress, setActiveInstanceAddress] = useState()
+const APP_APPS_CENTER = staticApps.get('apps').app
+const APP_CONSOLE = staticApps.get('console').app
+const APP_HOME = staticApps.get('home').app
+const APP_ORGANIZATION = staticApps.get('organization').app
+const APP_PERMISSIONS = staticApps.get('permissions').app
 
-  useEffect(() => {
-    const parts = location.pathname.split('/')
-    const appAddress = parts.length >= 2 ? parts[2] : null
+const systemAppsOpenedState = {
+  key: 'SYSTEM_APPS_OPENED_STATE',
+  isOpen: function() {
+    return localStorage.getItem(this.key) === '1'
+  },
+  set: function(opened) {
+    localStorage.setItem(this.key, opened ? '1' : '0')
+  },
+}
 
-    setActiveInstanceAddress(appAddress)
-  }, [location])
-
-  const handleOpenApp = useCallback(
-    (name, address) => {
-      if (activeInstaceAddress === address) {
-        return
-      }
-
-      if (onOpenApp) {
-        onOpenApp()
-      }
-
-      setActiveInstanceAddress(address)
-      history.push(buildAppRoute(name, address))
-    },
-    [activeInstaceAddress, history, onOpenApp]
+function MenuPanel({
+  appInstanceGroups,
+  appsStatus,
+  daoAddress,
+  daoStatus,
+  onOpenApp,
+  showOrgSwitcher,
+}) {
+  const { mode } = useRouting()
+  const { consoleVisible } = useConsole()
+  const [systemAppsOpened, setSystemAppsOpened] = useState(
+    systemAppsOpenedState.isOpen()
   )
 
-  const menuApps = useMemo(() => {
-    if (!apps) {
-      return []
-    }
+  const appGroups = useMemo(
+    () =>
+      appInstanceGroups
+        .filter(appGroup => appGroup.hasWebApp)
+        .map(appGroup => ({
+          ...appGroup,
+          icon: <AppIcon app={appGroup.app} />,
+        })),
+    [appInstanceGroups]
+  )
 
-    const appInstances = {}
-    const allowedMenuApps = apps.filter(app =>
-      APPS_MENU_PANEL.includes(app.name)
-    )
-    const appsSet = []
+  const activeInstanceId = (mode.name === 'org' && mode.instanceId) || null
 
-    allowedMenuApps.forEach(app => {
-      if (!appInstances[app.codeAddress]) {
-        appInstances[app.codeAddress] = []
-        appsSet.push(app)
-      }
+  const showConsole = consoleVisible || activeInstanceId === 'console'
+  const menuApps = [APP_HOME, appGroups]
+  const systemApps = [
+    APP_PERMISSIONS,
+    APP_APPS_CENTER,
+    APP_ORGANIZATION,
+    ...(showConsole ? [APP_CONSOLE] : []),
+  ]
 
-      appInstances[app.codeAddress].push(app.address)
+  const isSystemAppActive = useMemo(
+    () => systemApps.some(systemApp => systemApp.appId === activeInstanceId),
+    [activeInstanceId, systemApps]
+  )
+
+  const handleToggleSystemApps = useCallback(() => {
+    setSystemAppsOpened(opened => {
+      const openedState = !opened
+      systemAppsOpenedState.set(openedState)
+      return openedState
     })
-
-    return appsSet
-      .map(app => ({
-        appId: app.appId,
-        icon: <AppIcon app={app} src={getAppPresentation(app).iconSrc} />,
-        name: getAppPresentation(app).humanName,
-        appName: getAppPresentation(app).appName,
-        instances: appInstances[app.codeAddress],
-      }))
-      .sort((app1, app2) => app1.name.localeCompare(app2.name))
-  }, [apps])
+  }, [])
 
   const renderAppGroup = useCallback(
     app => {
-      const { appId, name, icon, appName, instances } = app
-
+      const { appId, name, icon, instances } = app
       const isActive =
-        instances.findIndex(instance =>
-          addressesEqual(instance, activeInstaceAddress)
+        instances.findIndex(
+          ({ instanceId }) => instanceId === activeInstanceId
         ) !== -1
 
       return (
         <div key={appId}>
           <MenuPanelAppGroup
-            name={appName}
-            humanName={name}
+            name={name}
             icon={icon}
             instances={instances}
-            activeInstance={activeInstaceAddress}
-            onActivate={handleOpenApp}
             active={isActive}
             expand={isActive}
+            activeInstanceId={activeInstanceId}
+            onActivate={onOpenApp}
           />
         </div>
       )
     },
-    [activeInstaceAddress, handleOpenApp]
+    [activeInstanceId, onOpenApp]
   )
+
+  const renderLoadedAppGroup = useCallback(
+    appGroups => {
+      // Used by the menu transition
+      const expandedInstancesCount = appGroups.reduce(
+        (height, { instances }) =>
+          instances.length > 1 &&
+          instances.findIndex(
+            ({ instanceId }) => instanceId === activeInstanceId
+          ) > -1
+            ? height + instances.length
+            : height,
+        0
+      )
+
+      // Wrap the DAO apps in the loader
+      return (
+        <MenuPanelAppsLoader
+          key="menu-apps"
+          appsStatus={appsStatus}
+          expandedInstancesCount={expandedInstancesCount}
+        >
+          {appGroups.map(app => renderAppGroup(app))}
+        </MenuPanelAppsLoader>
+      )
+    },
+    [appsStatus, activeInstanceId, renderAppGroup]
+  )
+
+  useEffect(() => {
+    // Automatically toggle the system apps menu if a system app is activated/deactivated
+    // If the user has manually opened the system apps menu, keep it open
+    setSystemAppsOpened(isSystemAppActive || systemAppsOpenedState.isOpen())
+  }, [isSystemAppActive])
 
   return (
     <Main>
@@ -115,6 +166,15 @@ function MenuPanel({ showOrgSwitcher, onOpenApp }) {
           box-shadow: 2px 0 ${MENU_PANEL_SHADOW_WIDTH}px rgba(0, 0, 0, 0.05);
         `}
       >
+        {showOrgSwitcher && (
+          <OrganizationSwitcher
+            loading={daoStatus === DAO_STATUS_LOADING}
+            currentDao={{
+              name: daoAddress.domain,
+              address: daoAddress.address,
+            }}
+          />
+        )}
         <nav
           css={`
             overflow-y: auto;
@@ -128,7 +188,26 @@ function MenuPanel({ showOrgSwitcher, onOpenApp }) {
               margin-top: ${0.5 * GU}px;
             `}
           >
-            {menuApps.map((app, index) => renderAppGroup(app, index))}
+            {menuApps.map(app =>
+              // If it's an array, it's the group being loaded from the ACL
+              Array.isArray(app)
+                ? renderLoadedAppGroup(app)
+                : renderAppGroup(app)
+            )}
+          </div>
+
+          <div
+            css={`
+              padding-top: ${1 * GU}px;
+            `}
+          >
+            <Details
+              label="System"
+              opened={systemAppsOpened}
+              onToggle={handleToggleSystemApps}
+            >
+              {systemApps.map(app => renderAppGroup(app))}
+            </Details>
           </div>
         </nav>
       </div>
@@ -136,14 +215,14 @@ function MenuPanel({ showOrgSwitcher, onOpenApp }) {
   )
 }
 
-// MenuPanel.propTypes = {
-//   appInstanceGroups: PropTypes.arrayOf(AppInstanceGroupType).isRequired,
-//   appsStatus: AppsStatusType.isRequired,
-//   daoAddress: DaoAddressType.isRequired,
-//   daoStatus: DaoStatusType.isRequired,
-//   onOpenApp: PropTypes.func.isRequired,
-//   showOrgSwitcher: PropTypes.bool,
-// }
+MenuPanel.propTypes = {
+  appInstanceGroups: PropTypes.arrayOf(AppInstanceGroupType).isRequired,
+  appsStatus: AppsStatusType.isRequired,
+  daoAddress: DaoAddressType.isRequired,
+  daoStatus: DaoStatusType.isRequired,
+  onOpenApp: PropTypes.func.isRequired,
+  showOrgSwitcher: PropTypes.bool,
+}
 
 function AnimatedMenuPanel({
   autoClosing,
@@ -232,7 +311,7 @@ function AnimatedMenuPanel({
 AnimatedMenuPanel.propTypes = {
   autoClosing: PropTypes.bool,
   className: PropTypes.string,
-  // onMenuPanelClose: PropTypes.func.isRequired,
+  onMenuPanelClose: PropTypes.func.isRequired,
   opened: PropTypes.bool,
   ...MenuPanel.propTypes,
 }

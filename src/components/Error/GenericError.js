@@ -1,6 +1,16 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Button, Details, GU, RADIUS, textStyle, useTheme } from '@aragon/ui'
+import {
+  Button,
+  Details,
+  GU,
+  Link,
+  RADIUS,
+  textStyle,
+  useTheme,
+} from '@aragon/ui'
+
+const SUPPORT_URL = 'https://github.com/aragon/aragon/issues/new'
 
 const GenericError = React.memo(function GenericError({
   detailsTitle,
@@ -28,7 +38,8 @@ const GenericError = React.memo(function GenericError({
           ${textStyle('body2')};
         `}
       >
-        Something went wrong! Hit reload to restart the app.
+        Something went wrong! Hit reload to restart the app, or you can{' '}
+        <Link href={SUPPORT_URL}>contact</Link> us if the problem persists.
       </p>
       {(detailsTitle || detailsContent) && (
         <Details label="Click here to see more details">
