@@ -71,8 +71,9 @@ const Welcome = React.memo(function Welcome({
         `}
       >
         Made with love from team PennyFi powered by Aragon?{' '}
-        <Link href="https://aragon.org/" external> */
-        T H E  C H A M A  R E V O L U T I O N .
+        <Link href="" external>
+           
+        
          </Link>
       </p>
     </Layout>
