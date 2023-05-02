@@ -1,4 +1,0 @@
-export const APP_TYPES = {
-  BUDGET: 'BUDGET',
-  GOVERNANCE: 'GOVERNANCE',
-}

@@ -1,61 +1,89 @@
-# PennyFi [<img height="100" align="right" alt="aragon-logo" src="https://user-images.githubusercontent.com/33203511/217436477-b2dae151-5e47-454c-885f-9158793e6790.png">](https://github.com/aragon/aragon-dao)
+# Aragon Client <a href="https://aragon.org/"><img align="right" src=".github/assets/aragon.svg" height="80px" /></a>
 
-The web app  to interact with the Aragon DAO network.
+[![Build Status](https://img.shields.io/github/workflow/status/aragon/client/Run%20tests?style=flat-square)](https://github.com/aragon/client/actions)
+[![All Contributors](https://img.shields.io/badge/all_contributors-47-orange.svg?style=flat-square)](#contributors)
 
-<br/>
+**🌎🚀 Trusted by over 1500 organizations, securing more than $300MM in funds. [Try it out](https://client.aragon.org).**
+
+<a href="https://client.aragon.org/#/a1/"><img src=".github/assets/screenshot.png" /></a>
+
+- 📚 Read the [User Guide](https://help.aragon.org/) first, if you have any questions as a user.
+- 🏗 If you'd like to develop an Aragon app, please visit the [Aragon Developer Portal](https://hack.aragon.org).
+- 📝 Please report any issues and feedback in the [support channel on Discord](https://discord.gg/ZncWSEGbSJ).
+- 🔧 For technical stuff, use this project's [issues](http://github.com/aragon/client/issues) or join the technical conversation in the [hacker hangout channel on Discord](https://discord.gg/XrhUzEy7jf).
+- 📖 To learn more about contributing to the Aragon client itself, please check the [contributing guide](./CONTRIBUTING.md).
+- 🚢 For an overview of what changed with each release, check the [releases](https://github.com/aragon/client/releases).
+
+## Quick start
+
+Install with `yarn` and launch the app with `yarn start`. By default, the app is configured to connect to the Ethereum Goerli testnet.
+
+For connecting to other chains / deployments, a few useful npm scripts are provided:
+
+- Ethereum Mainnet: `yarn start:mainnet` will launch the app, configured to connect to the Ethereum mainnet
+- Local development: `yarn start:local` will launch the app, configured to connect to our [aragen](https://github.com/aragon/aragen) local development environment. It will also use the local IPFS daemon, if it detects one exists. If you're using the [aragonCLI](http://github.com/aragon/aragon-cli), you'll want to run this to connect to its local chain.
+
+**Note**: Windows users may need to install the [windows-build-tools](https://www.npmjs.com/package/windows-build-tools) before installing this project's dependencies.
+
+More [configuration options](docs/CONFIGURATION.md) are available, and depending on your needs, you may find the [frontend development setup guide](docs/FRONTEND_SETUP.md) helpful.
+
+## Releases
+
+The Aragon client is automatically deployed to IPFS with each new commit to `master`, via [Fleek](https://fleek.co/). The latest builds are available at [`client.aragon.org`](https://client.aragon.org/) or through an IPFS gateway, like [`ipfs.io/ipns/client.aragon.org`](https://ipfs.io/ipns/client.aragon.org/).
+
+### aragonPM
+
+"Checkpointed" releases, tagged in our [releases page](https://github.com/aragon/aragon/releases), are published on-chain onto the `aragon.aragonpm.eth` aragonPM repository for all supported Ethereum environments (mainnet and Goerli testnet).
+
+For a long time (2018-2020), these releases were our primary "official" builds. With [Fleek](https://fleek.co/), however, we now relegate these on-chain deployments as historical backups in case a user wants to use an older version.
+
+#### Secrets
+
+A number of environment secrets are required during publishing and these are sometimes different per network.
+
+You may either specify these secrets as environment variables or use a `.env`.
+
+## Contributing
+
+#### 👋 Get started contributing with a [good first issue](https://github.com/aragon/client/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
+
+**🎓 You may be interested in the [Aragon client architecture guide](./docs/ARCHITECTURE.md) if you're not familiar with how the project is set up.**
+
+Don't be shy to contribute even the smallest tweak. 🐲 There are still some dragons to be aware of, but we'll be here to help you get started!
+
+For other details about contributing to Aragon, more information is available in the [contributing guide](./CONTRIBUTING.md).
+
+#### Issues
+
+If you come across an issue with Aragon, do a search in the [Issues](https://github.com/aragon/client/issues?utf8=%E2%9C%93&q=is%3Aissue) tab of this repo and the [Aragon Apps Issues](https://github.com/aragon/aragon-apps/issues?utf8=%E2%9C%93&q=is%3Aissue) to make sure it hasn't been reported before. Follow these steps to help us prevent duplicate issues and unnecessary notifications going to the many people watching this repo:
+
+- If the issue you found has been reported and is still open, and the details match your issue, give a "thumbs up" to the relevant posts in the issue thread to signal that you have the same issue. No further action is required on your part.
+- If the issue you found has been reported and is still open, but the issue is missing some details, you can add a comment to the issue thread describing the additional details.
+- If the issue you found has been reported but has been closed, you can comment on the closed issue thread and ask to have the issue reopened because you are still experiencing the issue. Alternatively, you can open a new issue, reference the closed issue by number or link, and state that you are still experiencing the issue. Provide any additional details in your post so we can better understand the issue and how to fix it.
+
+#### Contributors
+
+Thanks goes to the aragon team, and client team  these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
 
 
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
-## How to run locally
+## Re-usable foundations
 
-1. Git clone this repo.
+Amongst other dependencies, the Aragon client is built upon these packages that you may also find useful for your projects:
 
-```sh
-git clone https://github.com/aragon/aragon-dao.git
-```
-
-2. Go to directory.
-```sh
-cd aragon-dao/
-```
-3. Install dependencies.
-
-```sh
-yarn
-```
-
-4. Set the environment variables.
-5. Run the development server.
-
-```sh
-yarn start
-```
-
-## Environment variables
-
-Create a `.env` file with environment variables. You can use the `.env.example` file as a reference.
-
-Below you can find a list of all the required variables:
-
-| Env variable              | Description                                                                             |
-| ------------------------- | --------------------------------------------------------------------------------------- |
-| `CHAIN_ID`                | The ID of the chain where the DAO is located on.                                        |
-| `DAO_ID`                  | The Aragon ID (ENS name) or address of the DAO.                                         |
-| `GUARDIANS_TOKEN_MANAGER` | The address of the Guardian Token Manager app.                                          |
-| `STATIC_ETH_NODE` | Ethereum JSON-RPC endpoint                                          |
-
-
-And here a list of optional variables:
-
-| Env variable              | Description                                                                             |
-| ------------------------- | --------------------------------------------------------------------------------------- |
-| `ALCHEMY_API_KEY`         | The API key for Alchemy.com.                                                          |
-| `INFURA_API_KEY`          | The API key for Infura.io.                                                              |
-| `POCKET_API_KEY`          | The API key for Pokt.network.                                                           |
-| `ANKR_API_KEY`            | The API key for Ankr.com.                                                               |
-| `IPFS_RESOLVER`           | An URL similar to https://gateway.ipfs.io/ipfs/{cid}{path} with a custom IPFS gateway.  |
-| `BUDGET_APP_ADDRESSES`    | A list of comma-separated addresses of DAO apps that should be labeled as "Budget".     |
-| `GOVERNANCE_APP_ADDRESSES`| A list of comma-separated addresses of DAO apps that should be labeled as "Governance". |
-
-The optional API keys env variables are useful for setting different providers for request balancing in production environments.
+- [aragonUI](https://github.com/aragon/aragon-ui): React component library used to build user interfaces within the [Aragon design system](https://blog.aragon.org/introducing-aragonds-the-new-aragon-design-system/)
+- [token-amount](http://github.com/aragon/token-amount): utility class for encapsulating and formatting a token amount
+- [use-inside](https://github.com/aragon/use-inside): React utility that allows a component to be aware of being "inside" the subtree of another component
+- [use-token](https://github.com/aragon/use-token): React utility for fetching information related to tokens on Ethereum
+- [use-viewport](https://github.com/aragon/use-viewport): React utility providing the current window size and convenient functions for responsive apps
+- [use-wallet](https://github.com/aragon/use-wallet): React utility aiming to make the integration between your dapp and your users' web3 wallets as straightforward as possible
+- [web3-react](https://github.com/NoahZinsmeister/web3-react): a simple, maximally extensible React framework for supporting arbitrary web3 wallets

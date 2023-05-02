@@ -1,33 +1,22 @@
 import React, { useCallback } from 'react'
 import PropTypes from 'prop-types'
-import { ButtonBase, GU, useTheme } from '@aragon/ui'
-import { getAppLabel } from '@/utils/app-utils'
-import { isAddress } from 'ethers/lib/utils'
+import { ButtonBase, GU } from '@aragon/ui'
+import { useLocalIdentity } from '../../hooks'
 
 export const MENU_PANEL_APP_INSTANCE_HEIGHT = 4 * GU
 
-const shortenAddress = address => `${address.slice(0, 8)}…${address.slice(-6)}`
-
-function getAppInstanceLabel(appNameOrAddress) {
-  const appLabel = getAppLabel(appNameOrAddress)
-
-  if (isAddress(appLabel)) {
-    return shortenAddress(appLabel)
-  } else {
-    return appLabel
-  }
-}
-
 const MenuPanelAppInstance = React.memo(function MenuPanelAppInstance({
   active,
-  address,
+  id,
   name,
   onClick,
 }) {
-  const theme = useTheme()
   const handleClick = useCallback(() => {
-    onClick(address)
-  }, [address, onClick])
+    onClick(id)
+  }, [id, onClick])
+  const { name: localIdentity } = useLocalIdentity(id)
+
+  const label = localIdentity || name
 
   return (
     <ButtonBase
@@ -40,8 +29,7 @@ const MenuPanelAppInstance = React.memo(function MenuPanelAppInstance({
         border-radius: 0;
         text-align: left;
         cursor: pointer;
-        ${active ? 'font-weight: 800;' : ''}
-        color: ${active ? theme.content : theme.contentSecondary};
+        ${active ? 'font-weight: 600' : ''}
       `}
     >
       <span
@@ -51,14 +39,14 @@ const MenuPanelAppInstance = React.memo(function MenuPanelAppInstance({
           text-overflow: ellipsis;
         `}
       >
-        {getAppInstanceLabel(name)}
+        {label}
       </span>
     </ButtonBase>
   )
 })
 MenuPanelAppInstance.propTypes = {
   active: PropTypes.bool.isRequired,
-  address: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
 }

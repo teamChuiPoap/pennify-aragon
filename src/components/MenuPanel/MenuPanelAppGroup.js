@@ -1,11 +1,12 @@
 import React, { useCallback } from 'react'
 import PropTypes from 'prop-types'
-import { Spring, animated } from 'react-spring/renderprops'
+import { Spring, animated } from 'react-spring'
 import { ButtonBase, GU, textStyle, useTheme, springs } from '@aragon/ui'
 import MenuPanelAppInstance, {
   MENU_PANEL_APP_INSTANCE_HEIGHT,
 } from './MenuPanelAppInstance'
-import { addressesEqual } from '@/utils/web3-utils'
+import { AppInstanceType } from '../../prop-types'
+import { useLocalIdentity } from '../../hooks'
 
 export const MENU_ITEM_BASE_HEIGHT = 5 * GU
 
@@ -13,29 +14,28 @@ const { div: AnimDiv } = animated
 
 const MenuPanelAppGroup = React.memo(function MenuPanelAppGroup({
   name,
-  humanName,
   icon,
   instances,
-  activeInstance,
+  activeInstanceId,
   active,
   expand,
   onActivate,
 }) {
   const theme = useTheme()
-  const singleInstance = instances.length === 1
 
   const handleAppClick = useCallback(() => {
     const instance = instances[0]
-
     if (instance) {
-      onActivate(name, instance)
+      onActivate(instance.instanceId)
     }
-  }, [instances, name, onActivate])
+  }, [instances, onActivate])
 
   const handleInstanceClick = useCallback(
-    instanceAddress => onActivate(name, instanceAddress),
-    [name, onActivate]
+    instanceId => onActivate(instanceId),
+    [onActivate]
   )
+
+  const singleInstance = instances.length === 1
 
   return (
     <Spring
@@ -89,8 +89,8 @@ const MenuPanelAppGroup = React.memo(function MenuPanelAppGroup({
           <MenuPanelItem
             active={active}
             icon={icon}
-            instanceId={instances[0]}
-            name={humanName}
+            instanceId={instances[0].instanceId}
+            name={name}
             onClick={handleAppClick}
             openProgress={openProgress}
             singleInstance={singleInstance}
@@ -107,15 +107,14 @@ const MenuPanelAppGroup = React.memo(function MenuPanelAppGroup({
                 ),
               }}
             >
-              {instances.map(address => {
-                const label = address
-                const active = addressesEqual(address, activeInstance)
+              {instances.map(({ instanceId, identifier }) => {
+                const label = identifier || instanceId
                 return label ? (
-                  <li key={address}>
+                  <li key={instanceId}>
                     <MenuPanelAppInstance
-                      address={address}
+                      id={instanceId}
                       name={label}
-                      active={active}
+                      active={instanceId === activeInstanceId}
                       onClick={handleInstanceClick}
                     />
                   </li>
@@ -129,13 +128,12 @@ const MenuPanelAppGroup = React.memo(function MenuPanelAppGroup({
   )
 })
 MenuPanelAppGroup.propTypes = {
-  name: PropTypes.string.isRequired,
-  humanName: PropTypes.string.isRequired,
   active: PropTypes.bool.isRequired,
-  activeInstance: PropTypes.string,
-  instances: PropTypes.arrayOf(PropTypes.string).isRequired,
+  activeInstanceId: PropTypes.string,
   expand: PropTypes.bool.isRequired,
   icon: PropTypes.object.isRequired,
+  instances: PropTypes.arrayOf(AppInstanceType).isRequired,
+  name: PropTypes.string.isRequired,
   onActivate: PropTypes.func.isRequired,
 }
 
@@ -145,8 +143,12 @@ const MenuPanelItem = React.memo(function MenuPanelItem({
   name,
   icon,
   instanceId,
+  openProgress,
   singleInstance,
 }) {
+  const { name: localIdentity } = useLocalIdentity(instanceId)
+  const label = (singleInstance && localIdentity) || name
+
   return (
     <ButtonBase
       onClick={onClick}
@@ -170,7 +172,7 @@ const MenuPanelItem = React.memo(function MenuPanelItem({
           ${textStyle('body2')}
         `}
       >
-        {name}
+        {label}
       </span>
     </ButtonBase>
   )
@@ -181,6 +183,7 @@ MenuPanelItem.propTypes = {
   instanceId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
+  openProgress: PropTypes.object.isRequired,
   singleInstance: PropTypes.bool.isRequired,
 }
 

@@ -1,9 +1,12 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Card, GU, useTheme, useViewport } from '@aragon/ui'
-import HomeButton from '../HomeButton'
+import HomeButton from '../HomeButton/HomeButton'
 
+import eagleSvg from '../../assets/eagle.svg'
 import notFoundImage from '../../assets/dao-not-found.png'
+
+const EAGLE_DIMENSIONS = [1307, 877]
 
 function ErrorScreen({ children }) {
   const theme = useTheme()
@@ -14,7 +17,9 @@ function ErrorScreen({ children }) {
         height: 100vh;
         min-width: ${45 * GU}px;
         overflow: auto;
-        background: ${theme.background};
+        background: ${theme.background} fixed 50% 100% /
+          ${EAGLE_DIMENSIONS[0]}px ${EAGLE_DIMENSIONS[1]}px no-repeat
+          url(${eagleSvg});
       `}
     >
       <HomeButton
