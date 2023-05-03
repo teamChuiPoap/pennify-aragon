@@ -49,9 +49,10 @@ const Welcome = React.memo(function Welcome({
       }}
     >
       <Header
-        title="Welcome to Aragon"
-        subtitle="Create your own organization in a few minutes!"
+        title="Welcome to PennyFi"
+        subtitle="T H E C H A M A R E V O L U T I O N ."
       />
+
 
       {suggestedOrgs.length > 0 ? (
         <Split
@@ -69,10 +70,11 @@ const Welcome = React.memo(function Welcome({
           color: ${theme.contentSecondary};
         `}
       >
-        Do you need more information about Aragon?{' '}
-        <Link href="https://aragon.org/" external>
-          Visit our homepage
-        </Link>
+        Made with love from team PennyFi powered by Aragon?{' '}
+        <Link href="" external>
+           
+        
+         </Link>
       </p>
     </Layout>
   )
